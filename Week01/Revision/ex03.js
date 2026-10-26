@@ -5,16 +5,17 @@ const paymens = [ // array of payment objects
 ];
 
 
-while (petname = input("Enter pet name (or type 'exit' to quit): ")) {
-    if (petname == "Chester") {
-        console.log("Pet-care service for chester is confirmed");
-    }else if (petname == "Mochi") {
-        console.log("Mochi's payment status: PENDING");
-    }else{
-        console.log("Pet not found");
-    }
-}
+console .log("Mochi's payment status is " + paymens[1].status)
 
+paymens.forEach(function(payment) {
+    if(payment.status === "APPROVED") {
+        console.log(`Pet-care service for ${payment.petName} confirmed`);
+    }else if(payment.status === "PENDING") {
+        console.log(`Pet-care service for ${payment.petName} is being processed`);
+    }else {
+        console.log(`Pet-care service for ${payment.petName} unsuccessful`);
+    }
+});
 
 // Difference between = , ==, ===
 // = {assign a value to a variable}
