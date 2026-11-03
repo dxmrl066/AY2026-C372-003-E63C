@@ -1,13 +1,19 @@
+
 const MockProvider = require('../services/mockPaymentProvider');
 const mockServices = require('../data/mockServices');
 
+// GET - Prepare Payment
 function preparePayment(req, res) {
   const serviceId = Number(req.params.serviceId);
-const service = mockServices.find(
-  (item) => String(item.serviceId) === req.params.serviceId
-);
+
+  const service = mockServices.find(
+    item => String(item.serviceId) === req.params.serviceId
+  );
+
   if (!service) {
-    return res.status(404).json({ error: 'Service not found' });
+    return res.status(404).json({
+      error: 'Service not found'
+    });
   }
 
   return res.status(200).json({
@@ -19,14 +25,13 @@ const service = mockServices.find(
   });
 }
 
-
-
+// POST - Create Mock Payment
 async function createMockPayment(req, res) {
   const serviceId = Number(req.params.serviceId);
 
-const service = mockServices.find(
-  item => item.serviceId === serviceId
-);
+  const service = mockServices.find(
+    item => item.serviceId === serviceId
+  );
 
   if (!service) {
     return res.status(404).json({
@@ -34,6 +39,7 @@ const service = mockServices.find(
     });
   }
 
+  // Get trusted price from server-side catalogue
   const paymentRequest = {
     amount: service.amount,
     currency: 'sgd',
@@ -45,23 +51,31 @@ const service = mockServices.find(
   // Call mock payment provider
   const providerResult = await MockProvider.createPayment(paymentRequest);
 
+  // Map payment status to booking status
   const bookingStatusByPayment = {
     APPROVED: 'CONFIRMED',
     PENDING: 'AWAITING_PAYMENT',
     DECLINED: 'PAYMENT_FAILED'
   };
 
-  return res.json({
+  const bookingStatus = bookingStatusByPayment[providerResult.status];
+
+  // Debugging: check values in VS Code terminal
+  console.log("Provider result:", providerResult);
+  console.log("Payment status:", providerResult.status);
+  console.log("Booking status:", bookingStatus);
+  console.log("Updated Lesson 06 controller is running");
+
+  return res.status(200).json({
     serviceId: service.serviceId,
     providerPaymentId: providerResult.providerPaymentId,
     merchantReference: providerResult.merchantReference,
     paymentStatus: providerResult.status,
-    bookingStatus: bookingStatusByPayment[providerResult.status]
+    bookingStatus: bookingStatus
   });
 }
 
-
- module.exports = {
+module.exports = {
   preparePayment,
   createMockPayment
 };
